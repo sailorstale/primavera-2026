@@ -63,6 +63,26 @@
   .tabs{display:flex; gap:6px; background:var(--panel); border:1px solid var(--line); padding:4px; border-radius:13px; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none}
   .tabs::-webkit-scrollbar{display:none}
   .t-short{display:none}
+  .nowbtn{border:0; cursor:pointer; font-family:"Space Grotesk"; font-weight:700; font-size:13.5px; letter-spacing:.04em;
+    padding:8px 14px; border-radius:9px; white-space:nowrap; display:inline-flex; align-items:center; gap:7px; flex:0 0 auto;
+    background:linear-gradient(120deg,#1fe389,#0fb46a); color:#05281a; transition:.15s}
+  .nowbtn:hover{filter:brightness(1.08); transform:translateY(-1px)}
+  .nowbtn:active{transform:translateY(0)}
+  .nowbtn .live{width:7px; height:7px; border-radius:50%; background:#05281a; animation:pulse 1.5s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(5,40,26,.6)}70%{box-shadow:0 0 0 7px rgba(5,40,26,0)}100%{box-shadow:0 0 0 0 rgba(5,40,26,0)}}
+  /* «идёт прямо сейчас» */
+  .row.live-now>td:first-child{border-left-color:var(--green)}
+  .row.live-now>td{background:rgba(95,227,155,.10)}
+  .live-tag{font-size:10.5px; font-weight:700; letter-spacing:.04em; padding:3px 8px; border-radius:6px; white-space:nowrap;
+    background:var(--green); color:#05281a; display:inline-flex; align-items:center; gap:5px}
+  .live-tag::before{content:""; width:6px; height:6px; border-radius:50%; background:#05281a; animation:pulse 1.5s infinite}
+  .row.now-target>td{animation:nowflash 2.6s ease}
+  @keyframes nowflash{0%{background:rgba(95,227,155,0)}18%,55%{background:rgba(95,227,155,.24)}100%{background:rgba(95,227,155,0)}}
+  .toast{position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(18px); opacity:0; pointer-events:none;
+    background:#14141f; border:1px solid var(--line); color:var(--text); padding:11px 18px; border-radius:12px;
+    font-size:13.5px; z-index:60; transition:.28s; box-shadow:0 12px 44px rgba(0,0,0,.55); max-width:90vw; text-align:center}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  .toast b{color:var(--green)}
   .tab{border:0; background:transparent; color:var(--muted); font-family:"Space Grotesk"; font-weight:600;
     font-size:14px; padding:8px 15px; border-radius:9px; cursor:pointer; transition:.15s; white-space:nowrap}
   .tab:hover{color:var(--text)}
@@ -219,6 +239,7 @@
 <div class="controls">
   <div class="wrap">
     <div class="tabs" id="tabs">
+      <button class="nowbtn" id="nowBtn" title="Перейти к тому, что идёт сейчас"><span class="live"></span>NOW</button>
       <button class="tab active" data-day="all"><span class="t-full">Все дни</span><span class="t-short">Все</span></button>
       <button class="tab" data-day="fri"><span class="t-full">Пятница</span><span class="t-short">Пт</span><small>5 июня</small></button>
       <button class="tab" data-day="sat"><span class="t-full">Суббота</span><span class="t-short">Сб</span><small>6 июня</small></button>
@@ -239,6 +260,8 @@
 </div>
 
 <main class="wrap" id="main"></main>
+
+<div id="toast" class="toast"></div>
 
 <footer class="wrap">
   Данные: официальный лайнап и сет-таймы Primavera Sound 2026 (Parc del Fòrum, Барселона). Описания и классификация подготовлены автоматически на основе открытых источников — возможны неточности по малоизвестным локальным артистам. Превью открываются плеером Spotify; для артистов без профиля — кнопка ведёт в поиск Spotify. Тайминг указан по местному времени; сеты после полуночи относятся к ночи соответствующего дня.
@@ -330,7 +353,7 @@ function rowHTML(set, dayHeadliners){
 
   const crown = isHead?`<span class="crown" title="Хедлайнер">👑</span>`:"";
 
-  return `<tr class="row ${cls}" data-filters="${filterData}" data-search="${esc(searchData)}">
+  return `<tr class="row ${cls}" data-filters="${filterData}" data-search="${esc(searchData)}" data-sk="${tkey(set.t)}" data-ek="${tkey(set.e)}">
     <td class="c-time">${set.t}<span class="end">→ ${set.e}</span></td>
     <td class="c-art"><div class="name">${esc(set.a)} ${crown}</div>${info.origin?`<div class="origin">${esc(info.origin)}</div>`:""}</td>
     <td class="c-stage">${esc(set.s)}</td>
@@ -432,6 +455,72 @@ function apply(){
   document.getElementById("countline").textContent=parts.join("  ·  ");
 }
 apply();
+
+/* ---------- КНОПКА «NOW»: прыжок к текущему времени ---------- */
+const DAY_DATE = {fri:"2026-06-05", sat:"2026-06-06", sun:"2026-06-07"};
+const DAY_NAME = {fri:"пятница", sat:"суббота", sun:"воскресенье"};
+function ymd(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+let toastTimer=null;
+function showToast(html){
+  const t=document.getElementById("toast"); t.innerHTML=html; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),4200);
+}
+function selectDay(dayId){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.day===dayId));
+  // сброс фильтров и поиска, чтобы целевой сет точно был виден
+  activeFilters.clear(); document.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
+  q=""; document.getElementById("search").value="";
+  curDay=dayId; apply();
+}
+function goNow(){
+  document.querySelectorAll(".live-now").forEach(r=>r.classList.remove("live-now"));
+  document.querySelectorAll(".live-tag").forEach(el=>el.remove());
+
+  const now=new Date(); const h=now.getHours(); const hhmm=String(h).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
+  const ref=new Date(now); if(h<12) ref.setDate(ref.getDate()-1); // после полуночи — это программа предыдущей ночи
+  const dateStr=ymd(ref);
+  let dayId=Object.keys(DAY_DATE).find(k=>DAY_DATE[k]===dateStr);
+  let curKey=h*60+now.getMinutes()+(h<12?1440:0);
+  let preMsg="";
+  if(!dayId){
+    if(dateStr < DAY_DATE.fri){ dayId="fri"; curKey=-1; preMsg="Фестиваль ещё не начался — показываю старт пятницы. "; }
+    else { dayId="sun"; curKey=1e9; preMsg="Программа фестиваля завершилась — показываю финал. "; }
+  }
+  selectDay(dayId);
+
+  const sec=document.querySelector(`[data-dayid="${dayId}"]`);
+  const rows=[...sec.querySelectorAll("tr.row")]; // в DOM уже по времени
+  let target=null, live=[];
+  rows.forEach(r=>{ const sk=+r.dataset.sk, ek=+r.dataset.ek; if(sk<=curKey && curKey<ek){ live.push(r); if(!target)target=r; } });
+  if(live.length){
+    live.forEach(r=>{
+      r.classList.add("live-now");
+      const name=r.querySelector(".c-art .name");
+      if(name && !name.querySelector(".live-tag")) name.insertAdjacentHTML("beforeend",`<span class="live-tag">СЕЙЧАС</span>`);
+    });
+  }
+  if(!target) target=rows.find(r=> +r.dataset.sk >= curKey) || rows[rows.length-1];
+
+  // прокрутка с учётом липкой панели
+  if(target){
+    const y=target.getBoundingClientRect().top + window.pageYOffset - 150;
+    window.scrollTo({top:y, behavior:"smooth"});
+    target.classList.add("now-target"); setTimeout(()=>target.classList.remove("now-target"),2700);
+  }
+
+  // сообщение
+  if(live.length){
+    const word = live.length%10===1 && live.length%100!==11 ? "сет идёт" : "сетов идёт";
+    showToast(`${preMsg}Сейчас <b>${hhmm}</b> · ${DAY_NAME[dayId]} — ${live.length} ${word} прямо сейчас ⤵`);
+  } else if(target){
+    const nm=target.querySelector(".c-art .name").childNodes[0].textContent.trim();
+    const tm=target.querySelector(".c-time").textContent.trim().split("→")[0].trim();
+    showToast(`${preMsg}Сейчас <b>${hhmm}</b> · пауза — ближайшее: <b>${nm}</b> в ${tm} ⤵`);
+  } else {
+    showToast(`${preMsg}Сейчас <b>${hhmm}</b>`);
+  }
+}
+document.getElementById("nowBtn").addEventListener("click", goNow);
 </script>
 </body>
 </html>
