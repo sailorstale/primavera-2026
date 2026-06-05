@@ -65,7 +65,7 @@
   .t-short{display:none}
   .nowbtn{border:0; cursor:pointer; font-family:"Space Grotesk"; font-weight:700; font-size:11.5px; letter-spacing:.04em;
     padding:6px 10px; border-radius:8px; white-space:nowrap; display:inline-flex; align-items:center; gap:5px; flex:0 0 auto;
-    background:linear-gradient(120deg,#1fe389,#0fb46a); color:#05281a; transition:.15s}
+    background:linear-gradient(120deg,#1fe389,#0fb46a); color:#05281a; transition:.15s; margin-left:auto}
   .nowbtn:hover{filter:brightness(1.08); transform:translateY(-1px)}
   .nowbtn:active{transform:translateY(0)}
   .nowbtn .live{width:6px; height:6px; border-radius:50%; background:#05281a; animation:pulse 1.5s infinite}
@@ -245,11 +245,11 @@
 <div class="controls">
   <div class="wrap">
     <div class="tabs" id="tabs">
-      <button class="nowbtn" id="nowBtn" title="Перейти к тому, что идёт сейчас"><span class="live"></span>NOW</button>
       <button class="tab active" data-day="all"><span class="t-full">Все дни</span><span class="t-short">Все</span></button>
       <button class="tab" data-day="fri"><span class="t-full">Пятница</span><span class="t-short">Пт</span><small>5 июня</small></button>
       <button class="tab" data-day="sat"><span class="t-full">Суббота</span><span class="t-short">Сб</span><small>6 июня</small></button>
       <button class="tab" data-day="sun"><span class="t-full">Воскресенье</span><span class="t-short">Вс</span><small>7 июня · Bits</small></button>
+      <button class="nowbtn" id="nowBtn" title="Перейти к тому, что идёт сейчас"><span class="live"></span>NOW</button>
     </div>
     <div class="search">
       <span>🔍</span><input id="search" type="text" placeholder="Поиск артиста, жанра, сцены…">
