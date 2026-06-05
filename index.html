@@ -142,11 +142,6 @@
   .c-time{white-space:nowrap; font-family:"Space Grotesk"; font-weight:600; font-size:14.5px; width:92px}
   .c-time .end{display:block; color:var(--muted2); font-weight:400; font-size:12px}
   .c-art{min-width:150px}
-  .c-art .art-row{display:flex; align-items:center; gap:11px}
-  .c-art .art-text{min-width:0}
-  .avatar{flex:0 0 auto; width:44px; height:44px; border-radius:50%; display:inline-flex; align-items:center;
-    justify-content:center; font-family:"Space Grotesk"; font-weight:700; font-size:15px; color:#fff; letter-spacing:.01em;
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.14), 0 2px 9px rgba(0,0,0,.34); text-shadow:0 1px 2px rgba(0,0,0,.32); user-select:none}
   .c-art .name{font-family:"Space Grotesk"; font-weight:600; font-size:16px; letter-spacing:-.01em; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
   .crown{font-size:13px}
   .c-art .origin{color:var(--muted2); font-size:12px; margin-top:2px}
@@ -218,8 +213,6 @@
     .c-time{grid-column:1; grid-row:1; width:auto}
     .c-time .end{display:inline; margin-left:6px}
     .c-art{grid-column:2; grid-row:1}
-    .c-art .art-row{gap:9px}
-    .avatar{width:38px; height:38px; font-size:13.5px}
     .c-prev{grid-column:3; grid-row:1; width:auto}
     .c-stage{grid-column:1/4; grid-row:2; margin-top:2px}
     .c-stage::before{content:"📍 "}
@@ -351,21 +344,6 @@ const TAG_ORDER = ["headliner","heavy","experimental","legend","electronic","hip
 function spId(url){ const m=(url||"").match(/artist\/([A-Za-z0-9]+)/); return m?m[1]:null; }
 function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
-// детерминированный аватар-монограмма для каждого артиста (без сети, всегда рендерится)
-const AV_STOP = new Set(["the","la","el","los","las","le","les","dj","a","de","of","and","y","&"]);
-function avatarHTML(name){
-  const words = (name||"").split(/[\s.,&/()\[\]"'’·\-]+/).filter(w=>/^[\p{L}\p{N}]/u.test(w));
-  let sig = words.filter(w=>!AV_STOP.has(w.toLowerCase()));
-  if(!sig.length) sig = words;
-  let ini = ((sig[0]||"")[0]||"") + (sig[1]?(sig[1][0]||""):"");
-  if(!ini) ini = (name||"?").slice(0,2);
-  ini = ini.toUpperCase();
-  let h=2166136261; for(let i=0;i<name.length;i++){ h=(h^name.charCodeAt(i))>>>0; h=(h*16777619)>>>0; }
-  const h1=h%360, h2=(h1+50+(h>>4)%70)%360;
-  const grad=`linear-gradient(135deg,hsl(${h1} 64% 54%),hsl(${h2} 60% 40%))`;
-  return `<span class="avatar" aria-hidden="true" style="background:${grad}">${esc(ini)}</span>`;
-}
-
 function rowHTML(set, dayHeadliners){
   const info = byName[set.a] || {genre:"—",origin:"",description:"Данных по артисту найти не удалось.",tags:[],spotify:""};
   const isHead = dayHeadliners.includes(set.a);
@@ -392,7 +370,7 @@ function rowHTML(set, dayHeadliners){
 
   return `<tr class="row ${cls}" data-filters="${filterData}" data-search="${esc(searchData)}" data-scene="${esc(set.s)}" data-sk="${tkey(set.t)}" data-ek="${tkey(set.e)}">
     <td class="c-time">${set.t}<span class="end">→ ${set.e}</span></td>
-    <td class="c-art"><div class="art-row">${avatarHTML(set.a)}<div class="art-text"><div class="name">${esc(set.a)} ${crown}</div>${info.origin?`<div class="origin">${esc(info.origin)}</div>`:""}</div></div></td>
+    <td class="c-art"><div class="name">${esc(set.a)} ${crown}</div>${info.origin?`<div class="origin">${esc(info.origin)}</div>`:""}</td>
     <td class="c-stage">${esc(set.s)}</td>
     <td class="c-genre">${esc(info.genre)}</td>
     <td class="c-desc">${esc(info.description)}<div class="c-tags-cell"><div class="badges">${badges}</div></div></td>
