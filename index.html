@@ -341,9 +341,12 @@ function rowHTML(set, dayHeadliners){
   <tr class="embed-row"><td colspan="6"><div class="box"></div></td></tr>`;
 }
 
+// ключ сортировки по времени: сеты после полуночи (00:00–11:59) относятся к концу ночи -> сдвигаем за 24ч
+function tkey(t){ const p=t.split(":"); let mins=(+p[0])*60+(+p[1]); if((+p[0])<12) mins+=1440; return mins; }
 function dayHTML(day){
   const hl = day.headliners.map(h=>`<b>${esc(h)}</b>`).join(" · ");
-  const rows = day.sets.map(s=>rowHTML(s, day.headliners)).join("");
+  const sets = day.sets.slice().sort((a,b)=> tkey(a.t)-tkey(b.t) || a.s.localeCompare(b.s));
+  const rows = sets.map(s=>rowHTML(s, day.headliners)).join("");
   return `<section class="day" data-dayid="${day.id}">
     <div class="day-head">
       <h2>${esc(day.label)}</h2>
