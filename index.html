@@ -432,7 +432,53 @@ sceneSelect.addEventListener("change",e=>{
   curScene=e.target.value;
   e.target.classList.toggle("on", !!curScene);
   apply();
+  jumpToSceneNow();
 });
+
+// при выборе сцены — прыжок к сету, который идёт сейчас (или к ближайшему предстоящему) на ней
+function jumpToSceneNow(){
+  // снять прежние пометки «сейчас»
+  document.querySelectorAll(".live-now").forEach(r=>r.classList.remove("live-now"));
+  document.querySelectorAll(".live-tag").forEach(el=>el.remove());
+  if(!curScene) return;
+
+  const now=new Date(); const h=now.getHours();
+  const ref=new Date(now); if(h<12) ref.setDate(ref.getDate()-1); // после полуночи — программа предыдущей ночи
+  const todayId=Object.keys(DAY_DATE).find(k=>DAY_DATE[k]===ymd(ref));
+  const curKey=h*60+now.getMinutes()+(h<12?1440:0);
+
+  const rows=[...document.querySelectorAll("section.day:not(.hidden) tr.row:not(.hidden)")]
+    .filter(r=>r.dataset.scene===curScene);
+  if(!rows.length) return;
+
+  const dayRows = todayId ? rows.filter(r=>r.closest("section.day").dataset.dayid===todayId) : [];
+  let target=null, isLive=false;
+  if(dayRows.length){
+    const live = dayRows.filter(r=> +r.dataset.sk<=curKey && curKey< +r.dataset.ek);
+    live.forEach(r=>{
+      r.classList.add("live-now");
+      const name=r.querySelector(".c-art .name");
+      if(name && !name.querySelector(".live-tag")) name.insertAdjacentHTML("beforeend",`<span class="live-tag">СЕЙЧАС</span>`);
+    });
+    target = live[0] || dayRows.find(r=> +r.dataset.sk>=curKey) || dayRows[dayRows.length-1];
+    isLive = !!live.length;
+  } else {
+    target = rows[0]; // вне дней фестиваля — первый сет сцены по программе
+  }
+  if(!target) return;
+
+  const y=target.getBoundingClientRect().top + window.pageYOffset - 150;
+  window.scrollTo({top:y, behavior:"smooth"});
+  target.classList.add("now-target"); setTimeout(()=>target.classList.remove("now-target"),2700);
+
+  if(isLive){
+    showToast(`Сцена <b>${esc(curScene)}</b> — сейчас идёт ⤵`);
+  } else {
+    const nm=target.querySelector(".c-art .name").childNodes[0].textContent.trim();
+    const tm=target.querySelector(".c-time").textContent.trim().split("→")[0].trim();
+    showToast(`Сцена <b>${esc(curScene)}</b> — ближайшее: <b>${esc(nm)}</b> в ${tm} ⤵`);
+  }
+}
 document.getElementById("filters").addEventListener("click",e=>{
   const c=e.target.closest(".chip"); if(!c)return;
   const f=c.dataset.f;
