@@ -70,14 +70,12 @@
   .nowbtn:active{transform:translateY(0)}
   .nowbtn .live{width:7px; height:7px; border-radius:50%; background:#05281a; animation:pulse 1.5s infinite}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(5,40,26,.6)}70%{box-shadow:0 0 0 7px rgba(5,40,26,0)}100%{box-shadow:0 0 0 0 rgba(5,40,26,0)}}
-  /* «идёт прямо сейчас» — без заливки фона, только аккуратный зелёный край */
-  .row.live-now{border-left-color:var(--green)}
-  .row.live-now>td:first-child{border-left-color:var(--green)}
+  /* «идёт прямо сейчас» — только бейдж СЕЙЧАС, без подсветки фона или края */
   .live-tag{font-size:10.5px; font-weight:700; letter-spacing:.04em; padding:3px 8px; border-radius:6px; white-space:nowrap;
     background:var(--green); color:#05281a; display:inline-flex; align-items:center; gap:5px}
   .live-tag::before{content:""; width:6px; height:6px; border-radius:50%; background:#05281a; animation:pulse 1.5s infinite}
   .row.now-target>td{animation:nowflash 2.6s ease}
-  @keyframes nowflash{0%{background:rgba(95,227,155,0)}18%,55%{background:rgba(95,227,155,.24)}100%{background:rgba(95,227,155,0)}}
+  @keyframes nowflash{0%{background:rgba(255,255,255,0)}18%,55%{background:rgba(255,255,255,.09)}100%{background:rgba(255,255,255,0)}}
   .toast{position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(18px); opacity:0; pointer-events:none;
     background:#14141f; border:1px solid var(--line); color:var(--text); padding:11px 18px; border-radius:12px;
     font-size:13.5px; z-index:60; transition:.28s; box-shadow:0 12px 44px rgba(0,0,0,.55); max-width:90vw; text-align:center}
@@ -89,7 +87,8 @@
   .tab.active{background:linear-gradient(120deg,#2a2a3a,#21212e); color:#fff; box-shadow:0 0 0 1px var(--line)}
   .tab small{display:block; font-size:10.5px; font-weight:500; color:var(--muted2); margin-top:1px; letter-spacing:.02em}
   .tab.active small{color:var(--muted)}
-  .filters{display:flex; flex-wrap:wrap; gap:6px; margin-left:auto}
+  .filters{display:flex; flex-wrap:wrap; gap:6px}
+  .nowbtn{margin-left:auto}
   .chip{border:1px solid var(--line); background:var(--panel); color:var(--muted); font-size:12.5px;
     padding:7px 12px; border-radius:999px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:6px}
   .chip:hover{color:var(--text); border-color:#37374a}
@@ -170,6 +169,19 @@
   .play.search{color:var(--muted)}
   .play.search:hover{background:var(--muted); color:#0a0a0f}
 
+  .prev-actions{display:flex; align-items:center; gap:8px; justify-content:flex-end}
+  .share{width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--panel2);
+    color:var(--muted); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:.15s; flex:0 0 auto}
+  .share:hover{background:var(--blue); color:#06122a; border-color:var(--blue); transform:scale(1.06)}
+  .share svg{width:16px; height:16px}
+
+  /* кнопка сброса сцены рядом с дропдауном */
+  .scene-row{display:flex; gap:8px; align-items:stretch; flex:1; min-width:0}
+  .scene-row .scene-select{flex:1; min-width:0}
+  .scene-clear{flex:0 0 auto; border:1px solid var(--line); background:var(--panel); color:var(--muted);
+    font-family:"Space Grotesk"; font-weight:600; font-size:13px; padding:0 15px; border-radius:11px; cursor:pointer; transition:.15s}
+  .scene-clear:hover{background:var(--panel2); color:var(--text)}
+
   tr.embed-row>td{padding:0 16px 0}
   tr.embed-row .box{overflow:hidden; max-height:0; transition:max-height .35s ease; border-radius:14px}
   tr.embed-row.open .box{max-height:200px; margin-bottom:8px}
@@ -192,10 +204,11 @@
     .t-short{display:inline}
     .tab small{font-size:9.5px}
     .search{order:2; width:100%; flex-basis:auto}
-    .scene-select{order:3; width:100%; max-width:none}
+    .scene-row{order:3; width:100%}
     .filters{order:4; margin-left:0; width:100%; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:2px}
     .filters::-webkit-scrollbar{display:none}
     .chip{white-space:nowrap; flex:0 0 auto}
+    .nowbtn{order:0; margin-left:0; width:100%; justify-content:center; padding:11px}
     .countline{order:5; padding-top:2px}
     .day{padding:28px 0 6px}
     .day-head{gap:6px 14px}
@@ -227,31 +240,13 @@
 
 <header class="hero">
   <div class="wrap">
-    <p class="eyebrow">Гид по лайнапу · ревью</p>
     <h1>PRIMAVERA<br>SOUND 2026</h1>
-    <p class="sub">Полный разбор оставшегося лайнапа <b>с сегодняшнего дня (пятница, 5 июня)</b> до закрытия. Артисты, жанры, описания, подсветка тяжёлой и экспериментальной музыки, хедлайнеры, тайминг и превью из Spotify.</p>
-    <div class="meta-row">
-      <span><i class="dot"></i> Parc del Fòrum, Барселона</span>
-      <span><i class="dot" style="background:var(--cyan)"></i> 5–7 июня 2026</span>
-      <span><i class="dot" style="background:var(--pink)"></i> Sold out второй год подряд</span>
-      <span id="totalCount"><i class="dot" style="background:var(--purple)"></i> —</span>
-    </div>
-    <div class="legend">
-      <span class="lg"><i style="background:var(--gold)"></i> 👑 Хедлайнер</span>
-      <span class="lg"><i style="background:var(--red)"></i> 🤘 Тяжёлая музыка</span>
-      <span class="lg"><i style="background:var(--purple)"></i> 🧪 Сложная / экспериментальная</span>
-      <span class="lg"><i style="background:var(--cyan)"></i> Электроника</span>
-      <span class="lg"><i style="background:var(--blue)"></i> Легенда</span>
-      <span class="lg"><i style="background:var(--pink)"></i> Восходящие</span>
-      <span class="lg"><i style="background:var(--green)"></i> Локальные (ES)</span>
-    </div>
   </div>
 </header>
 
 <div class="controls">
   <div class="wrap">
     <div class="tabs" id="tabs">
-      <button class="nowbtn" id="nowBtn" title="Перейти к тому, что идёт сейчас"><span class="live"></span>NOW</button>
       <button class="tab active" data-day="all"><span class="t-full">Все дни</span><span class="t-short">Все</span></button>
       <button class="tab" data-day="fri"><span class="t-full">Пятница</span><span class="t-short">Пт</span><small>5 июня</small></button>
       <button class="tab" data-day="sat"><span class="t-full">Суббота</span><span class="t-short">Сб</span><small>6 июня</small></button>
@@ -260,9 +255,12 @@
     <div class="search">
       <span>🔍</span><input id="search" type="text" placeholder="Поиск артиста, жанра, сцены…">
     </div>
-    <select id="sceneSelect" class="scene-select" title="Фильтр по сцене" aria-label="Фильтр по сцене">
-      <option value="">🎪 Все сцены</option>
-    </select>
+    <div class="scene-row">
+      <select id="sceneSelect" class="scene-select" title="Фильтр по сцене" aria-label="Фильтр по сцене">
+        <option value="">🎪 Все сцены</option>
+      </select>
+      <button class="scene-clear" id="sceneClear" title="Сбросить фильтр по сцене">Все</button>
+    </div>
     <div class="filters" id="filters">
       <button class="chip" data-f="headliner">👑 Хедлайнеры</button>
       <button class="chip" data-f="heavy">🤘 Тяжёлые</button>
@@ -270,6 +268,7 @@
       <button class="chip" data-f="electronic">◓ Электроника</button>
       <button class="chip" data-f="legend">★ Легенды</button>
     </div>
+    <button class="nowbtn" id="nowBtn" title="Перейти к тому, что идёт сейчас"><span class="live"></span>NOW</button>
     <div class="countline" id="countline"></div>
   </div>
 </div>
@@ -344,7 +343,11 @@ const TAG_ORDER = ["headliner","heavy","experimental","legend","electronic","hip
 function spId(url){ const m=(url||"").match(/artist\/([A-Za-z0-9]+)/); return m?m[1]:null; }
 function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
-function rowHTML(set, dayHeadliners){
+// иконка «поделиться» (как в iOS) + slug для якоря карточки
+const SHARE_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>`;
+function slug(s){ return (s||"").toLowerCase().replace(/[^a-z0-9а-яё]+/gi,"-").replace(/^-+|-+$/g,"").slice(0,40); }
+
+function rowHTML(set, dayHeadliners, dayId){
   const info = byName[set.a] || {genre:"—",origin:"",description:"Данных по артисту найти не удалось.",tags:[],spotify:""};
   const isHead = dayHeadliners.includes(set.a);
   let tags = info.tags.slice();
@@ -359,22 +362,25 @@ function rowHTML(set, dayHeadliners){
   const badges = orderedTags.map(t=>`<span class="badge b-${t}">${TAG_LABEL[t]||t}</span>`).join("");
 
   const id = spId(info.spotify);
+  // только реальное превью из Spotify; если профиля нет — кнопку не показываем
   const prev = id
     ? `<button class="play" data-embed="${id}" title="Слушать превью">▶</button>`
-    : `<a class="play search" href="https://open.spotify.com/search/${encodeURIComponent(set.a)}" target="_blank" rel="noopener" title="Найти в Spotify">⌕</a>`;
+    : "";
 
   const filterData = (orderedTags.join(" ")) + (isHead?" headliner":"");
   const searchData = (set.a+" "+info.genre+" "+set.s+" "+(info.origin||"")).toLowerCase();
 
   const crown = isHead?`<span class="crown" title="Хедлайнер">👑</span>`:"";
+  const rowId = `set-${dayId}-${slug(set.a)}-${tkey(set.t)}`;
+  const share = `<button class="share" data-share="${rowId}" data-art="${esc(set.a)}" data-stage="${esc(set.s)}" data-time="${esc(set.t)}" title="Поделиться" aria-label="Поделиться">${SHARE_SVG}</button>`;
 
-  return `<tr class="row ${cls}" data-filters="${filterData}" data-search="${esc(searchData)}" data-scene="${esc(set.s)}" data-sk="${tkey(set.t)}" data-ek="${tkey(set.e)}">
+  return `<tr class="row ${cls}" id="${rowId}" data-filters="${filterData}" data-search="${esc(searchData)}" data-scene="${esc(set.s)}" data-sk="${tkey(set.t)}" data-ek="${tkey(set.e)}">
     <td class="c-time">${set.t}<span class="end">→ ${set.e}</span></td>
     <td class="c-art"><div class="name">${esc(set.a)} ${crown}</div>${info.origin?`<div class="origin">${esc(info.origin)}</div>`:""}</td>
     <td class="c-stage">${esc(set.s)}</td>
     <td class="c-genre">${esc(info.genre)}</td>
     <td class="c-desc">${esc(info.description)}<div class="c-tags-cell"><div class="badges">${badges}</div></div></td>
-    <td class="c-prev">${prev}</td>
+    <td class="c-prev"><div class="prev-actions">${prev}${share}</div></td>
   </tr>
   <tr class="embed-row"><td colspan="6"><div class="box"></div></td></tr>`;
 }
@@ -384,7 +390,7 @@ function tkey(t){ const p=t.split(":"); let mins=(+p[0])*60+(+p[1]); if((+p[0])<
 function dayHTML(day){
   const hl = day.headliners.map(h=>`<b>${esc(h)}</b>`).join(" · ");
   const sets = day.sets.slice().sort((a,b)=> tkey(a.t)-tkey(b.t) || a.s.localeCompare(b.s));
-  const rows = sets.map(s=>rowHTML(s, day.headliners)).join("");
+  const rows = sets.map(s=>rowHTML(s, day.headliners, day.id)).join("");
   return `<section class="day" data-dayid="${day.id}">
     <div class="day-head">
       <h2>${esc(day.label)}</h2>
@@ -402,7 +408,6 @@ main.innerHTML = SCHEDULE.days.map(dayHTML).join("") + `<div class="empty hidden
 
 // total count
 let total=0; SCHEDULE.days.forEach(d=>total+=d.sets.length);
-document.getElementById("totalCount").innerHTML = `<i class="dot" style="background:var(--purple)"></i> ${total} выступлений в гиде`;
 
 /* ---------- INTERACTION ---------- */
 let curDay="all"; const activeFilters=new Set(); let q=""; let curScene="";
@@ -427,6 +432,14 @@ document.getElementById("tabs").addEventListener("click",e=>{
   const b=e.target.closest(".tab"); if(!b)return;
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   b.classList.add("active"); curDay=b.dataset.day; buildSceneOptions(); apply();
+});
+// кнопка «Все» рядом с дропдауном — сброс фильтра по сцене
+document.getElementById("sceneClear").addEventListener("click",()=>{
+  if(!curScene) return;
+  curScene=""; sceneSelect.value=""; sceneSelect.classList.remove("on");
+  document.querySelectorAll(".live-now").forEach(r=>r.classList.remove("live-now"));
+  document.querySelectorAll(".live-tag").forEach(el=>el.remove());
+  apply();
 });
 sceneSelect.addEventListener("change",e=>{
   curScene=e.target.value;
@@ -488,8 +501,23 @@ document.getElementById("filters").addEventListener("click",e=>{
 });
 document.getElementById("search").addEventListener("input",e=>{ q=e.target.value.trim().toLowerCase(); apply(); });
 
+// поделиться карточкой (нативный шит Apple/Android, либо копирование ссылки)
+async function shareSet(btn){
+  const url = location.origin + location.pathname + "#" + btn.dataset.share;
+  const art = btn.dataset.art, stage = btn.dataset.stage, time = btn.dataset.time;
+  const data = { title:`${art} · Primavera Sound 2026`, text:`${art} — ${stage}, ${time}`, url };
+  if(navigator.share){
+    try{ await navigator.share(data); }catch(err){ /* пользователь отменил — игнорируем */ }
+  }else{
+    try{ await navigator.clipboard.writeText(url); showToast("🔗 Ссылка на карточку скопирована"); }
+    catch{ prompt("Скопируйте ссылку на карточку:", url); }
+  }
+}
+
 // play / embed
 main.addEventListener("click",e=>{
+  const sh=e.target.closest(".share");
+  if(sh){ e.stopPropagation(); shareSet(sh); return; }
   const btn=e.target.closest(".play[data-embed]");
   if(btn){
     e.stopPropagation();
@@ -540,6 +568,29 @@ function apply(){
 }
 buildSceneOptions();
 apply();
+
+// открыть карточку по ссылке-якорю (#set-...) — прокрутка + подсветка
+function openFromHash(){
+  const id = decodeURIComponent(location.hash.slice(1));
+  if(!id) return;
+  const row = document.getElementById(id);
+  if(!row || !row.classList.contains("row")) return;
+  // если карточка скрыта фильтрами/днём — сбрасываем всё, чтобы её показать
+  if(row.classList.contains("hidden") || row.closest("section.day").classList.contains("hidden")){
+    curDay="all"; curScene=""; activeFilters.clear(); q="";
+    document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.day==="all"));
+    document.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
+    const si=document.getElementById("search"); if(si) si.value="";
+    buildSceneOptions(); apply();
+  }
+  requestAnimationFrame(()=>{
+    const y=row.getBoundingClientRect().top + window.pageYOffset - 140;
+    window.scrollTo({top:y, behavior:"smooth"});
+    row.classList.add("now-target"); setTimeout(()=>row.classList.remove("now-target"),2700);
+  });
+}
+window.addEventListener("hashchange", openFromHash);
+openFromHash();
 
 /* ---------- КНОПКА «NOW»: прыжок к текущему времени ---------- */
 const DAY_DATE = {fri:"2026-06-05", sat:"2026-06-06", sun:"2026-06-07"};
